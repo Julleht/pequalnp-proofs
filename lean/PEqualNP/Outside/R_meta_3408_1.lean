@@ -21,10 +21,11 @@ theorem PEqualNP.Outside.R_meta_3408_1
   intro x1 x2 x3 hlen hm hf hs ho2 ho3 hb
   have hd : ∀ x : Fin 9 → Bool, (List.ofFn x ++ [x 0 || x 4]).getD 10 false = false :=
     fun x => List.getD_eq_default _ _ (by simp)
-  match x1, hlen with
-  | [], _ => exact short [] x2 x3 (by simp) hm hf hs ho2 ho3 hb
-  | [a], _ => exact short [a] x2 x3 (by simp) hm hf hs ho2 ho3 hb
-  | [a, b], _ =>
+  have eAnd : ∀ l : List Bool, GateOp.and.eval l = l.all id := fun _ => rfl
+  rcases x1 with _ | ⟨a, _ | ⟨b, _ | ⟨c, rest⟩⟩⟩
+  · exact short [] x2 x3 (by simp) hm hf hs ho2 ho3 hb
+  · exact short [a] x2 x3 (by simp) hm hf hs ho2 ho3 hb
+  ·
     by_cases h10 : a.val = 10 ∨ b.val = 10
     · obtain ⟨x, hx⟩ := short [10] x2 x3 (by simp) hm hf hs ho2 ho3 hb
       refine ⟨x, ?_⟩
@@ -33,9 +34,9 @@ theorem PEqualNP.Outside.R_meta_3408_1
           GateOp.and.eval (List.map (fun i : Fin 11 => (List.ofFn x ++ [x 0 || x 4]).getD i.val false) [10]) := by
         have h := hd x
         rcases h10 with h1 | h1
-        · simp only [List.map_cons, List.map_nil, GateOp.eval, List.all_cons, List.all_nil, h1, h]
+        · simp only [List.map_cons, List.map_nil, eAnd, List.all_cons, List.all_nil, h1, h]
           simp
-        · simp only [List.map_cons, List.map_nil, GateOp.eval, List.all_cons, List.all_nil, h1, h]
+        · simp only [List.map_cons, List.map_nil, eAnd, List.all_cons, List.all_nil, h1, h]
           simp
       rw [e]
       exact hx
@@ -46,7 +47,7 @@ theorem PEqualNP.Outside.R_meta_3408_1
         have e : GateOp.and.eval (List.map (fun i : Fin 11 => (List.ofFn x ++ [x 0 || x 4]).getD i.val false) [a, b]) =
             GateOp.and.eval (List.map (fun i : Fin 11 => (List.ofFn x ++ [x 0 || x 4]).getD i.val false) [a]) := by
           subst hab
-          simp [GateOp.eval]
+          simp [eAnd]
         rw [e]
         exact hx
       · have ha : a.val < 10 := by omega
@@ -55,7 +56,7 @@ theorem PEqualNP.Outside.R_meta_3408_1
         have e : ∀ x : Fin 9 → Bool, GateOp.and.eval (List.map (fun i : Fin 11 => (List.ofFn x ++ [x 0 || x 4]).getD i.val false) [a, b]) =
             ((List.ofFn x ++ [x 0 || x 4]).getD a.val false && (List.ofFn x ++ [x 0 || x 4]).getD b.val false) := by
           intro x
-          simp [GateOp.eval]
+          simp [eAnd]
         by_cases hlt : a.val < b.val
         · obtain ⟨x, hx⟩ := pair ⟨a.val, ha⟩ ⟨b.val, hb'⟩ x2 x3 hlt hm hf hs ho2 ho3 hb
           refine ⟨x, ?_⟩
@@ -67,4 +68,4 @@ theorem PEqualNP.Outside.R_meta_3408_1
           dsimp only at hx ⊢
           rw [e, Bool.and_comm]
           exact hx
-  | _ :: _ :: _ :: _, h => exact absurd h (by simp)
+  · exact absurd hlen (by simp)
