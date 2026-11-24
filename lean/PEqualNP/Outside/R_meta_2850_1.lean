@@ -10,6 +10,13 @@ theorem PEqualNP.Outside.R_meta_2850_1
     (h3 : ∀ (x1 : PEqualNP.CircuitLowerBounds.Circuit), PEqualNP.MetaComplexity.FanInTwo x1 → x1.size ≤ (14 : ℕ) → (∃ (g : PEqualNP.CircuitLowerBounds.Gate), List.filter (fun (x5 : PEqualNP.CircuitLowerBounds.Gate) => x5.inputs.contains (0 : ℕ)) x1.gates = [g] ∧ g.op = PEqualNP.CircuitLowerBounds.GateOp.or) → ∃ (x7 : Fin (9 : ℕ) → Bool), (PEqualNP.MetaComplexity.circuitFun (9 : ℕ) x1 fun (x8 : Fin (9 : ℕ)) => if x8 = (0 : Fin (9 : ℕ)) then !x7 (0 : Fin (9 : ℕ)) else x7 x8) ≠ (x7 (0 : Fin (9 : ℕ)) && x7 (1 : Fin (9 : ℕ)) || x7 (1 : Fin (9 : ℕ)) && x7 (2 : Fin (9 : ℕ)) || x7 (2 : Fin (9 : ℕ)) && x7 (3 : Fin (9 : ℕ)) || x7 (3 : Fin (9 : ℕ)) && x7 (4 : Fin (9 : ℕ)) || x7 (4 : Fin (9 : ℕ)) && x7 (0 : Fin (9 : ℕ)) || x7 (0 : Fin (9 : ℕ)) && x7 (5 : Fin (9 : ℕ)) || x7 (1 : Fin (9 : ℕ)) && x7 (6 : Fin (9 : ℕ)) || x7 (2 : Fin (9 : ℕ)) && x7 (7 : Fin (9 : ℕ)) || x7 (3 : Fin (9 : ℕ)) && x7 (8 : Fin (9 : ℕ)) || x7 (5 : Fin (9 : ℕ)) && x7 (7 : Fin (9 : ℕ)) || x7 (6 : Fin (9 : ℕ)) && x7 (8 : Fin (9 : ℕ)) || x7 (8 : Fin (9 : ℕ)) && x7 (5 : Fin (9 : ℕ)))) :
     ∀ (x1 : PEqualNP.CircuitLowerBounds.Circuit) (x2 : Bool), PEqualNP.MetaComplexity.FanInTwo x1 → x1.size ≤ (14 : ℕ) → (List.filter (fun (x5 : PEqualNP.CircuitLowerBounds.Gate) => x5.inputs.contains (0 : ℕ)) x1.gates).length ≤ (1 : ℕ) → x2 = Bool.true → ∃ (x7 : Fin (9 : ℕ) → Bool), (PEqualNP.MetaComplexity.circuitFun (9 : ℕ) x1 fun (x8 : Fin (9 : ℕ)) => if x8 = (0 : Fin (9 : ℕ)) then x2 != x7 (0 : Fin (9 : ℕ)) else x7 x8) ≠ (x7 (0 : Fin (9 : ℕ)) && x7 (1 : Fin (9 : ℕ)) || x7 (1 : Fin (9 : ℕ)) && x7 (2 : Fin (9 : ℕ)) || x7 (2 : Fin (9 : ℕ)) && x7 (3 : Fin (9 : ℕ)) || x7 (3 : Fin (9 : ℕ)) && x7 (4 : Fin (9 : ℕ)) || x7 (4 : Fin (9 : ℕ)) && x7 (0 : Fin (9 : ℕ)) || x7 (0 : Fin (9 : ℕ)) && x7 (5 : Fin (9 : ℕ)) || x7 (1 : Fin (9 : ℕ)) && x7 (6 : Fin (9 : ℕ)) || x7 (2 : Fin (9 : ℕ)) && x7 (7 : Fin (9 : ℕ)) || x7 (3 : Fin (9 : ℕ)) && x7 (8 : Fin (9 : ℕ)) || x7 (5 : Fin (9 : ℕ)) && x7 (7 : Fin (9 : ℕ)) || x7 (6 : Fin (9 : ℕ)) && x7 (8 : Fin (9 : ℕ)) || x7 (8 : Fin (9 : ℕ)) && x7 (5 : Fin (9 : ℕ))) := by
   have key : ∀ y : Bool, (true != y) = !y := by decide
+  have eNot : ∀ l : List Bool, PEqualNP.CircuitLowerBounds.GateOp.not.eval l = !(l.headD false) :=
+    fun _ => rfl
+  have eAnd : ∀ l : List Bool, PEqualNP.CircuitLowerBounds.GateOp.and.eval l = l.all id := fun _ => rfl
+  have eFun : ∀ (n : ℕ) (C : PEqualNP.CircuitLowerBounds.Circuit) (x : Fin n → Bool),
+      PEqualNP.MetaComplexity.circuitFun n C x =
+        (C.gates.foldl (fun w g => w ++ [g.op.eval (g.inputs.map fun i => w.getD i false)])
+          (List.ofFn x)).getD C.output false := fun _ _ _ => rfl
   have app_getD : ∀ (w v : List Bool) (z : Bool), w.length = v.length →
       (∀ k, k ≠ 0 → w.getD k false = v.getD k false) →
       ∀ k, k ≠ 0 → (w ++ [z]).getD k false = (v ++ [z]).getD k false := by
@@ -62,8 +69,7 @@ theorem PEqualNP.Outside.R_meta_2850_1
       exact Classical.byContradiction fun hc => hA ⟨g, hg, h0, hc⟩
     by_cases hout : C.output = 0
     · refine ⟨fun _ => false, ?_⟩
-      simp only [PEqualNP.MetaComplexity.circuitFun, PEqualNP.CircuitLowerBounds.Circuit.eval,
-        PEqualNP.CircuitLowerBounds.Circuit.wires, hout]
+      simp only [eFun, hout]
       rw [fold_getD0 _ _ (by simp)]
       decide
     · let f : PEqualNP.CircuitLowerBounds.Gate → PEqualNP.CircuitLowerBounds.Gate := fun g =>
@@ -86,7 +92,7 @@ theorem PEqualNP.Outside.R_meta_2850_1
             subst hh
             have hop : g.op = PEqualNP.CircuitLowerBounds.GateOp.not := hg (by simp [hi])
             rw [hop]
-            simpa [PEqualNP.CircuitLowerBounds.GateOp.eval, hi] using h0
+            simpa [eNot, eAnd, hi] using h0
         · have hfg : f g = g := if_neg hh
           rw [hfg]
           by_cases hc : g.inputs.contains 0 = true
@@ -100,7 +106,7 @@ theorem PEqualNP.Outside.R_meta_2850_1
                 apply hh
                 rw [hi, ha0]
                 rfl
-              simpa [PEqualNP.CircuitLowerBounds.GateOp.eval, hi] using heq a ha
+              simpa [eNot, hi] using heq a ha
           · congr 1
             apply List.map_congr_left
             intro i hi
@@ -153,8 +159,7 @@ theorem PEqualNP.Outside.R_meta_2850_1
             x3 1 && x3 6 || x3 2 && x3 7 || x3 3 && x3 8 || x3 5 && x3 7 || x3 6 && x3 8 || x3 8 && x3 5 := by
         funext x
         rw [← hall' x]
-        simp only [PEqualNP.MetaComplexity.circuitFun, PEqualNP.CircuitLowerBounds.Circuit.eval,
-          PEqualNP.CircuitLowerBounds.Circuit.wires]
+        simp only [eFun]
         symm
         apply fold_eq C.gates hnot
         · simp
