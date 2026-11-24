@@ -32,3 +32,4 @@ theorem PEqualNP.Outside.R_meta_1910_1
       constructor
       · intro ha; exact hP ⟨g, hg, p, hp, hr, Or.inl ha⟩
       · intro hn; exact hP ⟨g, hg, p, hp, hr, Or.inr hn⟩
+
