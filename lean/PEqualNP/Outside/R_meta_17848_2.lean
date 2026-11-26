@@ -1,0 +1,12 @@
+import PEqualNP.Defs
+
+-- Credit: the case-split reduction shape of foudress (R_meta_1710_64, #23768) and willakone
+-- (R_meta_17910_64). This is a split on the first gate of x1: an AND gate or not; each piece is the step with that one extra hypothesis.
+theorem PEqualNP.Outside.R_meta_17848_2
+    (caseA : ∀ (x1 : PEqualNP.CircuitLowerBounds.Circuit), (PEqualNP.MetaComplexity.NestedCover.gateAt x1 (0 : ℕ)).op = PEqualNP.CircuitLowerBounds.GateOp.and → PEqualNP.MetaComplexity.Monotone2 x1 →     have x3 : Finset (Fin (13 : ℕ) ⊕ Fin (13 : ℕ)) → Bool := fun (x3 : Finset (Fin (13 : ℕ) ⊕ Fin (13 : ℕ))) => x1.eval (List.ofFn fun (x4 : Fin ((13 : ℕ) + (13 : ℕ))) => Decidable.decide (finSumFinEquiv.symm x4 ∉ x3));     (∀ x4 ∈ PEqualNP.HeptadCover.quadrangles PEqualNP.HeptadCover.singerLines3, x3 (PEqualNP.HeptadCover.supp PEqualNP.HeptadCover.singerLines3 x4) = Bool.true) → (∀ x5 ∈ PEqualNP.HeptadCover.incidences PEqualNP.HeptadCover.singerLines3, x3 {Sum.inl x5.1, Sum.inr x5.2} = Bool.false) → (64 : ℕ) ≤ x1.size)
+    (caseB : ∀ (x1 : PEqualNP.CircuitLowerBounds.Circuit), (PEqualNP.MetaComplexity.NestedCover.gateAt x1 (0 : ℕ)).op ≠ PEqualNP.CircuitLowerBounds.GateOp.and → PEqualNP.MetaComplexity.Monotone2 x1 →     have x3 : Finset (Fin (13 : ℕ) ⊕ Fin (13 : ℕ)) → Bool := fun (x3 : Finset (Fin (13 : ℕ) ⊕ Fin (13 : ℕ))) => x1.eval (List.ofFn fun (x4 : Fin ((13 : ℕ) + (13 : ℕ))) => Decidable.decide (finSumFinEquiv.symm x4 ∉ x3));     (∀ x4 ∈ PEqualNP.HeptadCover.quadrangles PEqualNP.HeptadCover.singerLines3, x3 (PEqualNP.HeptadCover.supp PEqualNP.HeptadCover.singerLines3 x4) = Bool.true) → (∀ x5 ∈ PEqualNP.HeptadCover.incidences PEqualNP.HeptadCover.singerLines3, x3 {Sum.inl x5.1, Sum.inr x5.2} = Bool.false) → (64 : ℕ) ≤ x1.size) :
+    ∀ (x1 : PEqualNP.CircuitLowerBounds.Circuit),   PEqualNP.MetaComplexity.Monotone2 x1 →     have x3 : Finset (Fin (13 : ℕ) ⊕ Fin (13 : ℕ)) → Bool := fun (x3 : Finset (Fin (13 : ℕ) ⊕ Fin (13 : ℕ))) => x1.eval (List.ofFn fun (x4 : Fin ((13 : ℕ) + (13 : ℕ))) => Decidable.decide (finSumFinEquiv.symm x4 ∉ x3));     (∀ x4 ∈ PEqualNP.HeptadCover.quadrangles PEqualNP.HeptadCover.singerLines3, x3 (PEqualNP.HeptadCover.supp PEqualNP.HeptadCover.singerLines3 x4) = Bool.true) → (∀ x5 ∈ PEqualNP.HeptadCover.incidences PEqualNP.HeptadCover.singerLines3, x3 {Sum.inl x5.1, Sum.inr x5.2} = Bool.false) → (64 : ℕ) ≤ x1.size := by
+  intro x1
+  by_cases h : (PEqualNP.MetaComplexity.NestedCover.gateAt x1 (0 : ℕ)).op = PEqualNP.CircuitLowerBounds.GateOp.and
+  · exact @caseA x1 h
+  · exact @caseB x1 h
