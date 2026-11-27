@@ -226,8 +226,6 @@ lemma oneEach_get {n m : ℕ} (u : Fin n) (v : Fin m) (w : ℕ) :
     · simp [hw2]
       omega
 
-def AOk {n m : ℕ} (A : Fin n → Fin m → Bool) : Prop :=
-
 lemma row_get {n m : ℕ} (u : Fin n) (w : ℕ) :
     (List.ofFn (fun r₀ : Fin n => decide (r₀ = u)) ++ List.replicate m false).getD w false = true ↔
       w = u.val := by
@@ -235,15 +233,20 @@ lemma row_get {n m : ℕ} (u : Fin n) (w : ℕ) :
   · rw [List.getD_eq_getElem?_getD, List.getElem?_append_left (by simpa using hw)]
     simp [hw, Fin.ext_iff]
   · rw [List.getD_eq_getElem?_getD, List.getElem?_append_right (by simpa using hw)]
-    simp [List.getElem?_replicate]
-    omega
+    rw [List.getElem?_replicate]
+    constructor
+    · intro h
+      split_ifs at h <;> simp at h
+    · intro h
+      simp at hw
+      omega
 
 lemma col_get {n m : ℕ} (v : Fin m) (w : ℕ) :
     (List.replicate n false ++ List.ofFn (fun c₀ : Fin m => decide (c₀ = v))).getD w false = true ↔
       w = n + v.val := by
   by_cases hw : w < n
   · rw [List.getD_eq_getElem?_getD, List.getElem?_append_left (by simpa using hw)]
-    simp [List.getElem?_replicate, hw]
+    simp [hw]
     omega
   · rw [List.getD_eq_getElem?_getD, List.getElem?_append_right (by simpa using hw)]
     by_cases hw2 : w - n < m
@@ -254,7 +257,7 @@ lemma col_get {n m : ℕ} (v : Fin m) (w : ℕ) :
 
 end PEqualNP.Outside.L_meta_25480_aux
 
-open PEqualNP.Outside.L_meta_25480_aux in
+open PEqualNP.Outside.L_meta_25480_aux PEqualNP.Represents PEqualNP.MetaComplexity.NestedCover in
 theorem PEqualNP.Outside.L_meta_25480 : ∀ (n m : ℕ) (G : Fin n → Fin m → Bool) (C : PEqualNP.CircuitLowerBounds.Circuit),
   PEqualNP.TopForm.IsAO2 (n + m) C →
   PEqualNP.Represents.Represents G C →
@@ -308,6 +311,6 @@ theorem PEqualNP.Outside.L_meta_25480 : ∀ (n m : ℕ) (G : Fin n → Fin m →
   obtain ⟨j, hj, a, b, hop, hi, hv, hs⟩ :=
     descent hC (oneEach u v) R K hlx hlr hlc hin C.output hout hrow hcol
   have hg : C.gates.get ⟨j, hj⟩ = gateAt C j := by
-    simp [gateAt, List.getD_eq_getElem _ _ hj]
+    simp [gateAt, List.getElem?_eq_getElem hj]
   refine ⟨⟨j, hj⟩, a, b, hg ▸ hop, hg ▸ hi, hv, ?_⟩
   exact hs
